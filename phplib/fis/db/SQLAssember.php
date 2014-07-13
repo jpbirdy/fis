@@ -1,19 +1,4 @@
 <?php
-/***************************************************************************
- *   
- *   Copyright (c) 2011 Baidu.com, Inc. All Rights Reserved
- *   
- ***************************************************************************/
- 
- 
- 
-/**
- * @file $FILE NAME$
- * @author $DoxygenToolkit_authorName$
- * @date 2011/01/20 14:19:45
- * @brief  $Revision$
- *  
- */
 
 class Fis_Db_SQLAssember implements Fis_Db_ISQL
 {
@@ -30,35 +15,35 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
     }
 
     /**
-    * @brief 获取sql
-    *
-    * @return 
-    */
+     * @brief 获取sql
+     *
+     * @return
+     */
     public function getSQL()
     {
         return $this->sql;
     }
 
     /**
-    * @brief 获取select语句
-    *
-    * @param $tables 表名
-    * @param $fields 字段名
-    * @param $conds 条件
-    * @param $options 选项
-    * @param $appends 结尾操作
-    *
-    * @return 
-    */
+     * @brief 获取select语句
+     *
+     * @param $tables 表名
+     * @param $fields 字段名
+     * @param $conds 条件
+     * @param $options 选项
+     * @param $appends 结尾操作
+     *
+     * @return
+     */
     public function getSelect($tables, $fields, $conds = NULL, $options = NULL, $appends = NULL)
     {
         $sql = 'SELECT ';
 
         // 1. options
-        if($options !== NULL)
+        if ($options !== NULL)
         {
             $options = $this->__makeList($options, Fis_Db_SQLAssember::LIST_COM, ' ');
-            if(!strlen($options))
+            if (!strlen($options))
             {
                 $this->sql = NULL;
                 return NULL;
@@ -68,7 +53,7 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
 
         // 2. fields
         $fields = $this->__makeList($fields, Fis_Db_SQLAssember::LIST_COM);
-        if(!strlen($fields))
+        if (!strlen($fields))
         {
             $this->sql = NULL;
             return NULL;
@@ -77,7 +62,7 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
 
         // 3. from
         $tables = $this->__makeList($tables, Fis_Db_SQLAssember::LIST_COM);
-        if(!strlen($tables))
+        if (!strlen($tables))
         {
             $this->sql = NULL;
             return NULL;
@@ -85,10 +70,10 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
         $sql .= $tables;
 
         // 4. conditions
-        if($conds !== NULL)
+        if ($conds !== NULL)
         {
             $conds = $this->__makeList($conds, Fis_Db_SQLAssember::LIST_AND);
-            if(!strlen($conds))
+            if (!strlen($conds))
             {
                 $this->sql = NULL;
                 return NULL;
@@ -97,10 +82,10 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
         }
 
         // 5. other append
-        if($appends !== NULL)
+        if ($appends !== NULL)
         {
             $appends = $this->__makeList($appends, Fis_Db_SQLAssember::LIST_COM, ' ');
-            if(!strlen($appends))
+            if (!strlen($appends))
             {
                 $this->sql = NULL;
                 return NULL;
@@ -113,19 +98,19 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
     }
 
     /**
-    * @brief 获取update语句
-    *
-    * @param $table 表名
-    * @param $row 字段
-    * @param $conds 条件
-    * @param $options 选项
-    * @param $appends 结尾操作
-    *
-    * @return 
-    */
+     * @brief 获取update语句
+     *
+     * @param $table 表名
+     * @param $row 字段
+     * @param $conds 条件
+     * @param $options 选项
+     * @param $appends 结尾操作
+     *
+     * @return
+     */
     public function getUpdate($table, $row, $conds = NULL, $options = NULL, $appends = NULL)
     {
-        if(empty($row))
+        if (empty($row))
         {
             return NULL;
         }
@@ -133,15 +118,15 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
     }
 
     /**
-    * @brief 获取delete语句
-    *
-    * @param $table
-    * @param $conds
-    * @param $options
-    * @param $appends
-    *
-    * @return 
-    */
+     * @brief 获取delete语句
+     *
+     * @param $table
+     * @param $conds
+     * @param $options
+     * @param $appends
+     *
+     * @return
+     */
     public function getDelete($table, $conds = NULL, $options = NULL, $appends = NULL)
     {
         return $this->__makeUpdateOrDelete($table, NULL, $conds, $options, $appends);
@@ -150,9 +135,9 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
     private function __makeUpdateOrDelete($table, $row, $conds, $options, $appends)
     {
         // 1. options
-        if($options !== NULL)
+        if ($options !== NULL)
         {
-            if(is_array($options))
+            if (is_array($options))
             {
                 $options = implode(' ', $options);
             }
@@ -161,7 +146,7 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
 
         // 2. fields
         // delete
-        if(empty($row))
+        if (empty($row))
         {
             $sql = "DELETE $options FROM $table ";
         }
@@ -170,7 +155,7 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
         {
             $sql = "UPDATE $options $table SET ";
             $row = $this->__makeList($row, Fis_Db_SQLAssember::LIST_SET);
-            if(!strlen($row))
+            if (!strlen($row))
             {
                 $this->sql = NULL;
                 return NULL;
@@ -179,10 +164,10 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
         }
 
         // 3. conditions
-        if($conds !== NULL)
+        if ($conds !== NULL)
         {
             $conds = $this->__makeList($conds, Fis_Db_SQLAssember::LIST_AND);
-            if(!strlen($conds))
+            if (!strlen($conds))
             {
                 $this->sql = NULL;
                 return NULL;
@@ -191,10 +176,10 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
         }
 
         // 4. other append
-        if($appends !== NULL)
+        if ($appends !== NULL)
         {
             $appends = $this->__makeList($appends, Fis_Db_SQLAssember::LIST_COM, ' ');
-            if(!strlen($appends))
+            if (!strlen($appends))
             {
                 $this->sql = NULL;
                 return NULL;
@@ -207,23 +192,23 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
     }
 
     /**
-    * @brief 获取insert语句
-    *
-    * @param $table 表名
-    * @param $row 字段
-    * @param $options 选项
-    * @param $onDup 键冲突时的字段值列表
-    *
-    * @return 
-    */
+     * @brief 获取insert语句
+     *
+     * @param $table 表名
+     * @param $row 字段
+     * @param $options 选项
+     * @param $onDup 键冲突时的字段值列表
+     *
+     * @return
+     */
     public function getInsert($table, $row, $options = NULL, $onDup = NULL)
     {
         $sql = 'INSERT ';
 
         // 1. options
-        if($options !== NULL)
+        if ($options !== NULL)
         {
-            if(is_array($options))
+            if (is_array($options))
             {
                 $options = implode(' ', $options);
             }
@@ -235,18 +220,18 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
 
         // 3. clumns and values
         $row = $this->__makeList($row, Fis_Db_SQLAssember::LIST_SET);
-        if(!strlen($row))
+        if (!strlen($row))
         {
             $this->sql = NULL;
             return NULL;
         }
         $sql .= $row;
 
-        if(!empty($onDup))
+        if (!empty($onDup))
         {
             $sql .= ' ON DUPLICATE KEY UPDATE ';
             $onDup = $this->__makeList($onDup, Fis_Db_SQLAssember::LIST_SET);
-            if(!strlen($onDup))
+            if (!strlen($onDup))
             {
                 $this->sql = NULL;
                 return NULL;
@@ -259,7 +244,7 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
 
     private function __makeList($arrList, $type = Fis_Db_SQLAssember::LIST_SET, $cut = ', ')
     {
-        if(is_string($arrList))
+        if (is_string($arrList))
         {
             return $arrList;
         }
@@ -267,25 +252,25 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
         $sql = '';
 
         // for set in insert and update
-        if($type == Fis_Db_SQLAssember::LIST_SET)
+        if ($type == Fis_Db_SQLAssember::LIST_SET)
         {
-            foreach($arrList as $name => $value)
+            foreach ($arrList as $name => $value)
             {
-                if(is_int($name))
+                if (is_int($name))
                 {
                     $sql .= "$value, ";
                 }
                 else
                 {
-                    if(!is_int($value))
+                    if (!is_int($value))
                     {
-                        if($value === NULL)
+                        if ($value === NULL)
                         {
                             $value = 'NULL';
                         }
                         else
                         {
-                            $value = '\''.$this->db->escapeString($value).'\'';
+                            $value = '\'' . $this->db->escapeString($value) . '\'';
                         }
                     }
                     $sql .= "$name=$value, ";
@@ -294,25 +279,25 @@ class Fis_Db_SQLAssember implements Fis_Db_ISQL
             $sql = substr($sql, 0, strlen($sql) - 2);
         }
         // for where conds
-        else if($type == Fis_Db_SQLAssember::LIST_AND)
+        else if ($type == Fis_Db_SQLAssember::LIST_AND)
         {
-            foreach($arrList as $name => $value)
+            foreach ($arrList as $name => $value)
             {
-                if(is_int($name))
+                if (is_int($name))
                 {
                     $sql .= "($value) AND ";
                 }
                 else
                 {
-                    if(!is_int($value))
+                    if (!is_int($value))
                     {
-                        if($value === NULL)
+                        if ($value === NULL)
                         {
                             $value = 'NULL';
                         }
                         else
                         {
-                            $value = '\''.$this->db->escapeString($value).'\'';
+                            $value = '\'' . $this->db->escapeString($value) . '\'';
                         }
                     }
                     $sql .= "($name $value) AND ";

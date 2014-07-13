@@ -2,11 +2,9 @@
 
 /**
  * Timer - 计时器，可选ms/s级精度，支持累加
- *
- * @author: zhangdongjin@baidu.com
- * @note: 内部采用us计时，不会导致累加误差
+ * @author: jpbirdy
+ * @desc: 内部采用us计时，不会导致累加误差
  */
-
 class Fis_Timer
 {
     const PRECISION_MS = 1;
@@ -18,9 +16,9 @@ class Fis_Timer
     private $stopped = true;
     private $precision;
 
-    /** 
+    /**
      * 构造函数
-     * 
+     *
      * @param [in] $start: bool
      *              是否立即开始计时
      * @param [in] $precision: int
@@ -30,25 +28,25 @@ class Fis_Timer
     {
         $this->precision = $precision;
 
-        if($start)
+        if ($start)
         {
             $this->start();
         }
     }
 
-    
-    /** 
+
+    /**
      * start timer
-     * 
+     *
      * 启动定时器
-     * 
+     *
      * @return boolean
      * @note 对已启动定时器执行本函数将会失败
      * @see stop()
-     */ 
+     */
     function start()
     {
-        if(!$this->stopped)
+        if (!$this->stopped)
         {
             return false;
         }
@@ -58,11 +56,11 @@ class Fis_Timer
         return true;
     }
 
-    /** 
+    /**
      * stop timer
-     * 
+     *
      * 暂停定时器
-     * 
+     *
      * @return boolean/int
      *          false - 失败
      *          >= 0  - 本阶段计时的时间，为定时器精度
@@ -71,7 +69,7 @@ class Fis_Timer
      */
     function stop()
     {
-        if($this->stopped)
+        if ($this->stopped)
         {
             return false;
         }
@@ -80,22 +78,22 @@ class Fis_Timer
         $thisTime = self::getTimeStamp(self::PRECISION_US) - $this->begTime;
         $this->timeUsed += $thisTime;
 
-        switch($this->precision)
+        switch ($this->precision)
         {
-        case self::PRECISION_MS:
-            return intval($thisTime/1000);
+            case self::PRECISION_MS:
+                return intval($thisTime / 1000);
 
-        case self::PRECISION_S:
-            return intval($thisTime/1000000);
+            case self::PRECISION_S:
+                return intval($thisTime / 1000000);
 
-        default:
-            return $thisTime;
+            default:
+                return $thisTime;
         }
     }
 
-    /** 
+    /**
      * reset timer
-     * 
+     *
      * 重置定时器
      */
     function reset()
@@ -105,55 +103,55 @@ class Fis_Timer
         $this->stopped = true;
     }
 
-    /** 
+    /**
      * 获取累积时间
-     * 
+     *
      * @param [in] $precision: int
      *              返回精度，支持ms和s精度，默认为定时器精度
      * @return int
      */
     function getTotalTime($precision = null)
     {
-        if($precision === null)
+        if ($precision === null)
         {
             $precision = $this->precision;
         }
 
-        switch($precision)
+        switch ($precision)
         {
-        case self::PRECISION_MS:
-            return intval($this->timeUsed/1000);
+            case self::PRECISION_MS:
+                return intval($this->timeUsed / 1000);
 
-        case self::PRECISION_S:
-            return intval($this->timeUsed/1000000);
+            case self::PRECISION_S:
+                return intval($this->timeUsed / 1000000);
 
-        default:
-            return $this->timeUsed;
+            default:
+                return $this->timeUsed;
         }
     }
 
-    /** 
+    /**
      * 获取当前时间戳
-     * 
+     *
      * @param [in] $precision: int
      *              返回精度，支持us/ms/s，默认为ms
      * @return int
      */
     static function getTimeStamp($precision = Fis_Timer::PRECISION_MS)
     {
-        switch($precision)
+        switch ($precision)
         {
-        case Fis_Timer::PRECISION_MS:
-            return intval(microtime(true)*1000);
+            case Fis_Timer::PRECISION_MS:
+                return intval(microtime(true) * 1000);
 
-        case Fis_Timer::PRECISION_S:
-            return time();
+            case Fis_Timer::PRECISION_S:
+                return time();
 
-        case Fis_Timer::PRECISION_US:
-            return intval(microtime(true)*1000000);
+            case Fis_Timer::PRECISION_US:
+                return intval(microtime(true) * 1000000);
 
-        default:
-            return 0;
+            default:
+                return 0;
         }
     }
 }

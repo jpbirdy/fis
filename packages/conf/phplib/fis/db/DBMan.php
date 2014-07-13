@@ -1,12 +1,4 @@
 <?php
-/*
-* class Fis_Db_DBMan
-*
-* DB连接管理器，其管理策略用于UI页面，不适用后台脚本，后台脚本直接用DB类自己连接
-*
-* Author: zhangdongjin@baidu.com
-*
-* */
 
 class Fis_Db_DBMan
 {
@@ -18,25 +10,24 @@ class Fis_Db_DBMan
     public static $MAX_TRY_COUNT = 10;
 
     private $userConf = array('uname' => NULL, 'passwd' => NULL); // user config for all hosts
-    private $dbname = NULL;             // default db name
+    private $dbname = NULL; // default db name
 
-    private $allHosts = array();        // save all hosts
-    private $validHosts = array();      // save valid hosts
-    private $failedHosts = NULL;        // save failed hosts, which have been down
-    private $justFailedHosts = NULL;    // save failed hosts, which was down just now
-    private $currentHostIndex = NULL;   // index of the host that currently in use in the allHosts array
+    private $allHosts = array(); // save all hosts
+    private $validHosts = array(); // save valid hosts
+    private $failedHosts = NULL; // save failed hosts, which have been down
+    private $justFailedHosts = NULL; // save failed hosts, which was down just now
+    private $currentHostIndex = NULL; // index of the host that currently in use in the allHosts array
 
-    private $hostSelector = NULL;       // Fis_Db_IHostSelector object to select host
-    private $statusMan = NULL;          // Fis_Db_IStatusMan object to load and save hosts' status
+    private $hostSelector = NULL; // Fis_Db_IHostSelector object to select host
+    private $statusMan = NULL; // Fis_Db_IStatusMan object to load and save hosts' status
 
-    private $db = NULL;                 // DB object that currently in use
+    private $db = NULL; // DB object that currently in use
 
-    public function __construct(
-        $arrHosts,                   // array(array($host, $port), array(...), ...)
-        $userConf,                   // array('uname' => 'foo', 'passwd' => 'bar')
-        $dbname,                     // 'mydb'
-        Fis_Db_IHostSelector $hostSelector, // new RandSelector()
-        Fis_Db_IStatusMan $statusMan = NULL // new StatusManFile('tmp')
+    public function __construct($arrHosts, // array(array($host, $port), array(...), ...)
+                                $userConf, // array('uname' => 'foo', 'passwd' => 'bar')
+                                $dbname, // 'mydb'
+                                Fis_Db_IHostSelector $hostSelector, // new RandSelector()
+                                Fis_Db_IStatusMan $statusMan = NULL // new StatusManFile('tmp')
     )
     {
         $this->allHosts = $arrHosts;
@@ -48,16 +39,16 @@ class Fis_Db_DBMan
         $now = time();
 
         // load status
-        if($statusMan !== NULL)
+        if ($statusMan !== NULL)
         {
             $this->statusMan = $statusMan;
-            foreach($this->allHosts as $key => &$host)
+            foreach ($this->allHosts as $key => &$host)
             {
                 $status = $statusMan->load($host[0], $host[1]);
-                if(!empty($status))
+                if (!empty($status))
                 {
                     // filter failed host
-                    if(($status['last_failed_time'] + Fis_Db_DBMan::$RETRY_INTERVAL) > $now)
+                    if (($status['last_failed_time'] + Fis_Db_DBMan::$RETRY_INTERVAL) > $now)
                     {
 //                        echo "filter: {$host[0]}:{$host[1]}\n";
                         $this->failedHosts[$key] = $host;
@@ -75,66 +66,58 @@ class Fis_Db_DBMan
         }
     }
 
-	/**
-	* @brief 获取一个db连接
-	*
-	* @param $key 选择的key
-	* @param $getNew 是否生成新连接
-	* @param $replace 指出是否用新生成连接覆盖保存的连接
-	*
-	* @return 
-	*/
+    /**
+     * @brief 获取一个db连接
+     *
+     * @param $key 选择的key
+     * @param $getNew 是否生成新连接
+     * @param $replace 指出是否用新生成连接覆盖保存的连接
+     *
+     * @return
+     */
     public function getDB($key = NULL, $getNew = false, $replace = true)
     {
-        if($this->db !== NULL && !$getNew)
+        if ($this->db !== NULL && !$getNew)
         {
             return $this->db;
         }
 
         $db = new Fis_Db(Fis_Db_DBMan::$ENABLE_PROFILING);
-        if(Fis_Db_DBMan::$CONN_TIMEOUT > 0)
+        if (Fis_Db_DBMan::$CONN_TIMEOUT > 0)
         {
             $db->setConnectTimeOut(Fis_Db_DBMan::$CONN_TIMEOUT);
         }
 
         // 尝试的次数
         $try_count = 0;
-        while(true)
+        while (true)
         {
-            if(count($this->validHosts) == 0 ||
-                ($index = $this->hostSelector->select($this, $key)) === false)
+            if (count($this->validHosts) == 0 || ($index = $this->hostSelector->select($this, $key)) === false)
             {
                 return false;
             }
             // return the same host
-            if($this->currentHostIndex === $index)
+            if ($this->currentHostIndex === $index)
             {
                 return $this->db;
             }
             // do connect
             $host = $this->allHosts[$index];
-            $ret = $db->connect(
-                $host[0],
-                $this->userConf['uname'],
-                $this->userConf['passwd'],
-                $this->dbname,
-                $host[1],
-                Fis_Db_DBMan::$CONN_FLAGS
-            );
+            $ret = $db->connect($host[0], $this->userConf['uname'], $this->userConf['passwd'], $this->dbname, $host[1], Fis_Db_DBMan::$CONN_FLAGS);
             // got it
-            if($ret)
+            if ($ret)
             {
                 break;
             }
             // record failed host
             $this->_recordFailedHost($index);
             // try count exceeded
-            if(++$try_count == Fis_Db_DBMan::$MAX_TRY_COUNT)
+            if (++$try_count == Fis_Db_DBMan::$MAX_TRY_COUNT)
             {
                 return false;
             }
         }
-        if($this->db == NULL || $replace)
+        if ($this->db == NULL || $replace)
         {
             $this->currentHostIndex = $index;
             $this->db = $db;
@@ -151,7 +134,7 @@ class Fis_Db_DBMan
         $this->justFailedHosts[$index] = $this->allHosts[$index];
         $this->failedHosts[$index] = $this->allHosts[$index];
         // save status
-        if($this->statusMan !== NULL)
+        if ($this->statusMan !== NULL)
         {
             $host = $this->allHosts[$index];
             $this->statusMan->save($host[0], $host[1], $status);
@@ -160,17 +143,17 @@ class Fis_Db_DBMan
 
     public function __get($name)
     {
-        if($name == 'db')
+        if ($name == 'db')
         {
             return $this->getDB();
         }
-        else if(property_exists($this, $name))
+        else if (property_exists($this, $name))
         {
             return $this->$name;
         }
-        else if($name == 'currentHost')
+        else if ($name == 'currentHost')
         {
-            if($this->currentHostIndex === NULL)
+            if ($this->currentHostIndex === NULL)
             {
                 return NULL;
             }

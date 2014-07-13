@@ -1,23 +1,16 @@
 <?php
-/***************************************************************************
- * 
- * Copyright (c) 2011 Baidu.com, Inc. All Rights Reserved
- * 
- **************************************************************************/
- 
- 
- 
 /**
  * @file Conf.php
- * @author hanshinan(com@baidu.com)
- * @date 2011/10/21 15:30:33
- * @brief 
- *  
+ * @author
+ * @date
+ * @brief 未实现
+ *
  **/
 class Fis_Conf extends Fis_Conf_Base
 {
     protected static $set_conf = null;
-    /* 
+
+    /*
      * 获取配置，重载了父类的定义，添加setConf的支持
      *
      *  @param:
@@ -29,39 +22,42 @@ class Fis_Conf extends Fis_Conf_Base
      *      string: 成功
      *      false: 失败
      */
-    public static function getConf($item, $idc = null) {
-        if ($idc == null)
-            $conf = parent::getConf($item);
+    public static function getConf($item, $idc = null)
+    {
+        if ($idc == null) $conf = parent::getConf($item);
         else
             $conf = parent::getConf($item, $idc);
-        if (self::$set_conf == null)
-            return $conf;
+        if (self::$set_conf == null) return $conf;
 
         if (empty($item)) return false;
         //parse query string
-        if ($item[0] != '/') {
+        if ($item[0] != '/')
+        {
             $item = self::getLevel() . "/$item";
         }
         $query = explode('/', $item);
 
         $value = self::$set_conf;
-        while(($node = array_shift($query)) !== null) {
+        while (($node = array_shift($query)) !== null)
+        {
             if ($node === '') continue;
-            if (isset($value[$node])) {
+            if (isset($value[$node]))
+            {
                 $value = $value[$node];
-            } else {
+            }
+            else
+            {
                 $value = null;
             }
         }
-        if ($value === null)
-            return $conf;
-        else if (is_array($value) && is_array($conf))
-            return self::my_array_merge_recursive($conf, $value);
+        if ($value === null) return $conf;
+        else if (is_array($value) && is_array($conf)) return self::my_array_merge_recursive($conf, $value);
         else
             return $value;
 
     }
-    /* 
+
+    /*
      * 设置配置项，调试时使用。下次getConf时可获取这里设置的值
      *
      *  @param:
@@ -73,12 +69,14 @@ class Fis_Conf extends Fis_Conf_Base
     public static function setConf($item, $value)
     {
         // setLevel
-        if ($item[0] != '/') {
+        if ($item[0] != '/')
+        {
             $item = self::getLevel() . "/$item";
         }
 
         // root has to be an array
-        if (($item == '' || $item == '/') && !is_array($value)) {
+        if (($item == '' || $item == '/') && !is_array($value))
+        {
             return;
         }
 
@@ -87,20 +85,25 @@ class Fis_Conf extends Fis_Conf_Base
 
         // build array
         $built = $value;
-        while (($node = array_pop($query)) !== null) {
+        while (($node = array_pop($query)) !== null)
+        {
             if ($node === '') continue;
             $built = array($node => $built);
         }
 
         // merge with global set_conf
-        if (self::$set_conf == null) {
+        if (self::$set_conf == null)
+        {
             self::$set_conf = $built;
-        } else {
+        }
+        else
+        {
             self::$set_conf = self::my_array_merge_recursive(self::$set_conf, $built);
         }
 
     }
-    /* 
+
+    /*
      * 获取当前App或指定App的配置
      *
      *  @param:
@@ -115,12 +118,13 @@ class Fis_Conf extends Fis_Conf_Base
     public static function getAppConf($item = null, $app = null)
     {
         //和ODP环境解耦
-        if(!defined('IS_ODP')){
+        if (!defined('IS_ODP'))
+        {
             return self::getConf($item);
         }
         $conf_path = Fis_Appenv::getEnv('conf', $app);
 
-        if(!empty($item))
+        if (!empty($item))
         {
             $conf_path .= "/$item";
         }
@@ -134,16 +138,22 @@ class Fis_Conf extends Fis_Conf_Base
     }
 
     // helper functions
-    private static function my_array_merge_recursive() {
+    private static function my_array_merge_recursive()
+    {
         $arrays = func_get_args();
         $base = array_shift($arrays);
 
-        foreach ($arrays as $array) {
+        foreach ($arrays as $array)
+        {
             reset($base); //important
-            while (list($key, $value) = @each($array)) {
-                if (is_array($value) && @is_array($base[$key])) {
+            while (list($key, $value) = @each($array))
+            {
+                if (is_array($value) && @is_array($base[$key]))
+                {
                     $base[$key] = self::my_array_merge_recursive($base[$key], $value);
-                } else {
+                }
+                else
+                {
                     $base[$key] = $value;
                 }
             }

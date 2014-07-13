@@ -55,5 +55,3 @@ class Fis_Ip
         return '';
     }
 }
-
-?>

@@ -1,40 +1,36 @@
 <?php
-/***************************************************************************
- *   
- *   Copyright (c) 2011 Baidu.com, Inc. All Rights Reserved
- *   
- ***************************************************************************/
- 
- 
- 
+
+
 /**
- * @file $FILE NAME$
- * @author $DoxygenToolkit_authorName$
- * @date 2011/01/20 14:19:45
- * @brief  $Revision$
- *  
+ * @file
+ * @author
+ * @date
+ * @brief
+ *
  */
-
-
 // abstract DBResult
 abstract class Fis_Db_AbsDBResult
 {
     abstract public function next($type = Fis_Db::FETCH_ASSOC);
+
     abstract public function seek($where);
+
     abstract public function tell();
+
     abstract public function count();
+
     abstract public function free();
 
     public function walk($callback, $type = Fis_Db::FETCH_ASSOC)
     {
         // seek head
-        if($this->tell() != 0 && !$this->seek(0))
+        if ($this->tell() != 0 && !$this->seek(0))
         {
             return false;
         }
 
         $args = func_get_args();
-        if(count($args) <= 2)
+        if (count($args) <= 2)
         {
             $args = array();
         }
@@ -45,12 +41,12 @@ abstract class Fis_Db_AbsDBResult
         }
 
         $count = 0;
-        while($row = $this->next($type))
+        while ($row = $this->next($type))
         {
             $count++;
             $tmp = $args;
             array_unshift($tmp, $row);
-            if(call_user_func_array($callback, $tmp) === false)
+            if (call_user_func_array($callback, $tmp) === false)
             {
                 break;
             }

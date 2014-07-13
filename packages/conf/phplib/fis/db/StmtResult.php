@@ -1,19 +1,4 @@
 <?php
-/***************************************************************************
- *   
- *   Copyright (c) 2011 Baidu.com, Inc. All Rights Reserved
- *   
- ***************************************************************************/
- 
- 
- 
-/**
- * @file $FILE NAME$
- * @author $DoxygenToolkit_authorName$
- * @date 2011/01/20 14:19:45
- * @brief  $Revision$
- *  
- */
 
 // result of stmt execute
 class Fis_Db_StmtResult extends Fis_Db_AbsDBResult
@@ -31,18 +16,18 @@ class Fis_Db_StmtResult extends Fis_Db_AbsDBResult
         $this->noused_stmt_obj = $stmt_obj;
         // do bind result
         $count = 0;
-        foreach($finfo as $v)
+        foreach ($finfo as $v)
         {
-            $bindString .=', &$this->row['.$count.']';
+            $bindString .= ', &$this->row[' . $count . ']';
             ++$count;
         }
-        $bindString = '$this->stmt->bind_result('.substr($bindString, 2).');';
+        $bindString = '$this->stmt->bind_result(' . substr($bindString, 2) . ');';
         eval($bindString);
     }
 
     public function __destruct()
     {
-        if($this->stmt !== NULL)
+        if ($this->stmt !== NULL)
         {
             $this->free();
         }
@@ -51,14 +36,14 @@ class Fis_Db_StmtResult extends Fis_Db_AbsDBResult
     public function next($type = Fis_Db::FETCH_ASSOC)
     {
         $ret = $this->stmt->fetch();
-        if(!$ret)
+        if (!$ret)
         {
             return $ret;
         }
 
-        if($type == Fis_Db::FETCH_ASSOC)
+        if ($type == Fis_Db::FETCH_ASSOC)
         {
-            foreach($this->row as $k => $v)
+            foreach ($this->row as $k => $v)
             {
                 $tmp[$this->finfo[$k]->name] = $v;
             }
@@ -66,7 +51,7 @@ class Fis_Db_StmtResult extends Fis_Db_AbsDBResult
         else
         {
             // $row is ref, so we can't use $tmp = $row
-            foreach($this->row as $v)
+            foreach ($this->row as $v)
             {
                 $tmp[] = $v;
             }
@@ -78,17 +63,17 @@ class Fis_Db_StmtResult extends Fis_Db_AbsDBResult
     public function seek($where)
     {
         // unseekable
-        if($this->stmt->num_rows == 0)
+        if ($this->stmt->num_rows == 0)
         {
             return false;
         }
 
-        if($where < 0 || $where >= $this->stmt->num_rows)
+        if ($where < 0 || $where >= $this->stmt->num_rows)
         {
             return false;
         }
 
-        if($this->stmt->data_seek($where) === false)
+        if ($this->stmt->data_seek($where) === false)
         {
             return false;
         }

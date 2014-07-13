@@ -1,12 +1,4 @@
 <?php
-/**
-* brief of DBStmt.php:
-*
-* @author zhangdongjin@baidu.com
-* @date 2008/11/09 23:47:30
-* @version $Revision: 1.2 $
-* @todo
-*/
 
 // never create instance by yourself
 class Fis_Db_DBStmt
@@ -20,7 +12,7 @@ class Fis_Db_DBStmt
 
     public function __destruct()
     {
-        if($this->stmt !== NULL)
+        if ($this->stmt !== NULL)
         {
             $this->close();
         }
@@ -34,7 +26,7 @@ class Fis_Db_DBStmt
 
     public function __get($name)
     {
-        switch($name)
+        switch ($name)
         {
             case 'stmt':
                 return $this->stmt;
@@ -51,35 +43,35 @@ class Fis_Db_DBStmt
         }
     }
 
-	/**
-	* @brief 绑定参数
-	*
-	* @return 
-	*/
+    /**
+     * @brief 绑定参数
+     *
+     * @return
+     */
     public function bindParam()
     {
         $args = func_get_args();
         return call_user_func_array(array($this->stmt, 'bind_param'), $args);
     }
 
-	/**
-	* @brief 执行查询
-	*
-	* @param $fetchType 获取方式
-	* @param $bolUseResult 是否使用MYSQL_USE_RESULT
-	*
-	* @return 
-	*/
+    /**
+     * @brief 执行查询
+     *
+     * @param $fetchType 获取方式
+     * @param $bolUseResult 是否使用MYSQL_USE_RESULT
+     *
+     * @return
+     */
     public function execute($fetchType = Fis_Db::FETCH_ASSOC, $bolUseResult = false)
     {
-        if(!$this->stmt->execute())
+        if (!$this->stmt->execute())
         {
             return false;
         }
         // get metadata
         $res = $this->stmt->result_metadata();
         // no result
-        if(!$res)
+        if (!$res)
         {
             return true;
         }
@@ -87,9 +79,9 @@ class Fis_Db_DBStmt
         $res->free();
 
         // get an object
-        if($fetchType == Fis_Db::FETCH_OBJ || $bolUseResult)
+        if ($fetchType == Fis_Db::FETCH_OBJ || $bolUseResult)
         {
-            if(!$bolUseResult && !$this->stmt->store_result())
+            if (!$bolUseResult && !$this->stmt->store_result())
             {
                 return false;
             }
@@ -97,42 +89,42 @@ class Fis_Db_DBStmt
         }
 
         // store result
-        if(!$this->stmt->store_result())
+        if (!$this->stmt->store_result())
         {
             return false;
         }
 
         $count = 0;
         $bindString = '';
-        foreach($finfo as $v)
+        foreach ($finfo as $v)
         {
             // get bind string
-            $bindString .= ', &$row['.$count.']';
+            $bindString .= ', &$row[' . $count . ']';
             ++$count;
         }
 
         $row = array();
-        $bindString = '$this->stmt->bind_result('.substr($bindString, 2).');';
+        $bindString = '$this->stmt->bind_result(' . substr($bindString, 2) . ');';
         eval($bindString);
         // fetch
         $ret = array();
-        while(true)
+        while (true)
         {
             $tmp = array();
             $r = $this->stmt->fetch();
-            if($r === NULL)
+            if ($r === NULL)
             {
                 break;
             }
-            else if($r === false)
+            else if ($r === false)
             {
                 $this->stmt->free_result();
                 return false;
             }
- //           var_dump($row);
-            if($fetchType == Fis_Db::FETCH_ASSOC)
+            //           var_dump($row);
+            if ($fetchType == Fis_Db::FETCH_ASSOC)
             {
-                foreach($row as $k => $v)
+                foreach ($row as $k => $v)
                 {
                     $tmp[$finfo[$k]->name] = $v;
                 }
@@ -140,7 +132,7 @@ class Fis_Db_DBStmt
             else
             {
                 // $row is ref, so we can't use $tmp = $row
-                foreach($row as $v)
+                foreach ($row as $v)
                 {
                     $tmp[] = $v;
                 }
@@ -152,41 +144,41 @@ class Fis_Db_DBStmt
         return $ret;
     }
 
-	/**
-	* @brief 获取受影响的行数
-	*
-	* @return 
-	*/
+    /**
+     * @brief 获取受影响的行数
+     *
+     * @return
+     */
     public function getAffectedRows()
     {
         return $this->stmt->affected_rows;
     }
 
-	/**
-	* @brief 获取参数个数
-	*
-	* @return 
-	*/
+    /**
+     * @brief 获取参数个数
+     *
+     * @return
+     */
     public function getParamCount()
     {
         return $this->stmt->param_count;
     }
 
-	/**
-	* @brief 获取错误码
-	*
-	* @return 
-	*/
+    /**
+     * @brief 获取错误码
+     *
+     * @return
+     */
     public function errno()
     {
         return $this->stmt->errno;
     }
 
-	/**
-	* @brief 获取错误描述
-	*
-	* @return 
-	*/
+    /**
+     * @brief 获取错误描述
+     *
+     * @return
+     */
     public function error()
     {
         return $this->stmt->error;

@@ -1,15 +1,11 @@
 <?php
-/**
-* brief of AppEnv.php:
-* 
-* 提供APP相关的上下文信息，主要是各种路径信息
-*
-* @author 
-* @date 2011/12/21 15:58:58
-* @version $Revision: 1.1 $ 
-* @todo 
-*/
 
+/**
+ * 提供APP相关的上下文环境，主要是各种路径信息
+ * @author jpbirdy
+ * @date 2014年7月13日23:32:00
+ * @version $Revision: 1.0 $
+ */
 final class Fis_Appenv
 {
     private static $strCurrApp;
@@ -21,7 +17,7 @@ final class Fis_Appenv
     public static function setCurrApp($app = null)
     {
         $strPrevApp = self::$strCurrApp;
-        self::$strCurrApp = empty($app)?MAIN_APP:$app;
+        self::$strCurrApp = empty($app) ? MAIN_APP : $app;
         return $strPrevApp;
     }
 
@@ -30,15 +26,15 @@ final class Fis_Appenv
         return self::$strCurrApp;
     }
 
-	public static function getProduct()
-	{
-		return PRODUCT;
-	}
+    public static function getProduct()
+    {
+        return PRODUCT;
+    }
 
-	public static function getSubSys()
-	{
-		return SUBSYS;
-	}
+    public static function getSubSys()
+    {
+        return SUBSYS;
+    }
 
     /*
      * 获取当前或参数指定App的上下文环境值
@@ -50,33 +46,36 @@ final class Fis_Appenv
      * */
     public static function getEnv($key, $app = null)
     {
-        $curApp = empty($app)?self::$strCurrApp:$app;
+        $curApp = empty($app) ? self::$strCurrApp : $app;
 
-        switch($key)
+        switch ($key)
         {
-        case 'conf':
-            return "/app/$curApp";
+            case 'conf':
+                return "/app/$curApp";
 
-        case 'data':
-            return DATA_PATH."/app/$curApp";
+            case 'data':
+                return DATA_PATH . "/app/$curApp";
 
-        case 'code':
-            return APP_PATH."/$curApp";
+            case 'code':
+                return APP_PATH . "/$curApp";
 
-        case 'log':
-            return LOG_PATH."/$curApp";
+            case 'log':
+                return LOG_PATH . "/$curApp";
 
-        case 'template':
-			//如果template下面模块的划分和app的划分一致，则返回template/currApp目录，否则返回template的根目录
-			$ret = TPL_PATH."/$curApp";
-			if(is_dir($ret)){
-				return $ret;
-			}else{
-            	return TPL_PATH;
-			}
+            case 'template':
+                //如果template下面模块的划分和app的划分一致，则返回template/currApp目录，否则返回template的根目录
+                $ret = TPL_PATH . "/$curApp";
+                if (is_dir($ret))
+                {
+                    return $ret;
+                }
+                else
+                {
+                    return TPL_PATH;
+                }
 
-        default:
-            return self::$arrEnv[$curApp][$key];
+            default:
+                return self::$arrEnv[$curApp][$key];
         }
     }
 
@@ -87,9 +86,7 @@ final class Fis_Appenv
      * */
     public static function setEnv($key, $value, $app = null)
     {
-        $curApp = empty($app)?self::$strCurrApp:$app;
+        $curApp = empty($app) ? self::$strCurrApp : $app;
         self::$arrEnv[$curApp][$key] = $value;
     }
 }
-
-?>
