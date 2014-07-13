@@ -1,0 +1,16 @@
+<?php
+/**
+ * @name Action_Sample
+ * @desc sample action, 和url对应
+ */
+class SampleAction extends Yaf_Action_Abstract {
+
+	public function execute() {
+		echo 'hello';
+		$arrInput = array_merge( $_GET , $_POST);
+		var_export($arrInput);
+		echo Bd_Ip::getLocalIp();
+		Bd_Log::debug('request input', 0, $arrInput);
+    	}
+    	
+}

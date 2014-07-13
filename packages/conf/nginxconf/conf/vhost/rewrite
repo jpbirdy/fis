@@ -1,0 +1,32 @@
+#校验
+if ( $host !~* "\.baidu\.com$|\.baidu\.com\:|\.tieba.com$|\.tieba.com\:|^tieba.com$|^tieba.com\:|\.baidu\.com\.cn$|\.baidu\.com\.cn\:|\.baidu\.cn$|\.baidu\.cn\:|^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$|^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\:" ) {
+    rewrite ".*" http://error.baidu.com/errorname.html?url=$host&fr=forum permanent;
+}
+
+#校验
+#if ( $host ~* "\.tieba\.com|(post|bbs|tiebacommit)\.baidu\.com" ) {
+#    rewrite "^(.*)$" http://tieba.baidu.com$1 permanent;
+#}
+
+#模块rewrite
+#rewrite "^/app/(colortile|eighthyear|pop|gradepopup|goodthreadfeed|userhis|delthreadremind|newyear|sgp)\b(.*)$" /app_index.php$2 last;
+#rewrite "^/f/(blockinfo|center|fdir|like|rel|search|user|bawu)\b(.*)$"    /appui_index.php$1$2 last;
+#rewrite "^/f/aladdin\b(.*)$"                                        /aladdin_index.php$1$2 last;
+#rewrite "^/f/(commit|zyq)\b(.*)$"                                    /commit_index.php/$1$2 last;
+#rewrite "^/f/(innercommit)\b(.*)$"                                   /innercommit_index.php/commit$2 last;
+#rewrite "^/f/(tupian|mod|shipin)\b(.*)$"                             /commit_index.php/zyq/$1$2 last;
+#rewrite "^/m/(i|trade)$"                                             http://tieba.baidu.com/imall/mall#!/tc/my/ permanent;
+#rewrite "^/m(/|/mall|/money)$"                                       http://tieba.baidu.com/imall/mall permanent;
+#rewrite "^/vipping/send(.*)"                                         /vipping/sendvipping_realtime_new.php last;
+#rewrite "^/f/(.*)$"                                                  /new_frs_index.php/f$1 last;
+#rewrite "^/(bakan|club|i|vote|vote-mis)\b(.*)$"                      /index.php/$1$2 last;
+#rewrite "^/(bawu|manager-apply)\b(.*)$"                              /phpfr_index.php/$1$2 last;
+#rewrite "^/(fame-hall|gift|tousu)\b(.*)$"                            /bingo_index.php$2 last;
+#rewrite "^/(comment|frsbgcui)\b(.*)$"                                /bingo_index.php/$1$2 last;
+#rewrite "^/daquan\b(.*)"                                             /protal_index.php$1 last;
+#rewrite "^/sign\b(.*)"                                               /sign_index.php$1 last;
+#rewrite "^/dc/(.*)$"                                                 /commit_index.php/dc/$1 last;
+#rewrite "^/imall/(.*)$"                                              /imall_index.php/$1 last;
+#rewrite "^/m/(.*)$"                                                  /index_mall.php/mall/$1 last;
+#rewrite "^[/|?(*)]$"                                                 /appui_index.php/center last;
+#rewrite "^/([^\/]*)$"                                                /new_frs_index.php/f$1 last;

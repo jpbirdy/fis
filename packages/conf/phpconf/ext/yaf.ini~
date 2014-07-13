@@ -1,0 +1,13 @@
+[yaf]
+extension="yaf.so"
+ap.environ="product"
+ap.library="/home/tuan/odp/php/phplib"
+ap.cache_config=0
+ap.name_suffix=0
+ap.name_separator="_"
+ap.st_compatible=1
+ap.action_prefer=1
+ap.forward_limit=5
+ap.lowcase_path=1
+ap.use_namespace=0
+ap.use_spl_autoload=1
