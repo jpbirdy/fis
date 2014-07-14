@@ -51,13 +51,13 @@ final class Fis_Appenv
         switch ($key)
         {
             case 'conf':
-                return "/app/$curApp";
+                return APP_PATH.'/conf';
 
             case 'data':
                 return DATA_PATH . "/app/$curApp";
 
             case 'code':
-                return APP_PATH . "/$curApp";
+                return APP_PATH ;
 
             case 'log':
                 return LOG_PATH . "/$curApp";

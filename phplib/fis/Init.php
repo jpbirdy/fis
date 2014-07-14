@@ -29,7 +29,7 @@ class Fis_Init
         $path = realpath((dirname(__FILE__) . '/../../../'));
         define('ROOT_PATH', $path);
         // CONF_PATH是文件系统路径，不能传给Fis_Conf
-        define('CONF_PATH', ROOT_PATH . '/conf');
+//        define('CONF_PATH', ROOT_PATH . '/conf');
         define('DATA_PATH', ROOT_PATH . '/data');
         define('BIN_PATH', ROOT_PATH . '/php/bin');
         define('LOG_PATH', ROOT_PATH . '/log');

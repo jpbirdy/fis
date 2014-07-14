@@ -2,66 +2,11 @@
 /**
  * @file Log.php
  * @author jpbirdy
- * @date
- * @version
- * @brief 待优化
+ * @date 2014年7月14日16:57:11
+ * @brief
  *
  **/
 
-
-/*********************************************
- * format string 格式，取自lighttpd文档
- * 前面标记 - 代表ODP的Log库不支持
- * 行为不一致的，均有注释说明
- * 后面的 === 之后的，是ODP Log库扩展的功能
- * ====== ================================
- * Option Description
- * ====== ================================
- * %%     a percent sign
- * %h     name or address of remote-host
- * -%l     ident name (not supported)
- * -%u     authenticated user
- * %t     timestamp of the end-time of the request //param, show current time, param specifies strftime format
- * -%r     request-line
- * -%s     status code
- * -%b     bytes sent for the body
- * %i     HTTP-header field //param
- * %a     remote address
- * %A     local address
- * -%B     same as %b
- * %C     cookie field (not supported) //param
- * %D     time used in ms
- * %e     environment variable //param
- * %f     physical filename
- * %H     request protocol (HTTP/1.0, ...)
- * %m     request method (GET, POST, ...)
- * -%n     (not supported)
- * -%o     `response header`_
- * %p     server port
- * -%P     (not supported)
- * %q     query string
- * %T     time used in seconds //support param, s, ms, us, default to s
- * %U     request URL
- * %v     server-name
- * %V     HTTP request host name
- * -%X     connection status
- * -%I     bytes incomming
- * -%O     bytes outgoing
- * ====== ================================
- * %L     log level
- * %N     line number
- * %E     err_no
- * %l     log_id
- * %u     user
- * %S     strArray, support param, takes a key and removes the key from %S
- * %M     error message
- * %x     ODP extension, supports various param, like log_level, line_number etc.
- *
- * currently supported param for %x:
- * log_level, line, class, function, err_no, err_msg, log_id, app, function_param, argv, encoded_str_array
- *
- * in %x, prepend u_ to key to urlencode before its value
- *************************************************/
 class Fis_Log
 {
     const LOG_LEVEL_FATAL = 0x01;
@@ -78,148 +23,66 @@ class Fis_Log
         self::LOG_LEVEL_DEBUG => 'DEBUG',
     );
 
-    protected $intLevel;
-    protected $strLogFile;
-    protected $bolAutoRotate;
-    protected $addNotice = array();
+    protected $level;
+    protected $log_file;
+    protected $auto_rotate;
+    protected $str_format;
+    protected $str_format_wf;
+    protected $add_notice = array();
 
-    private static $arrInstance = array();
+    private static $arr_instance = array();
     public static $current_instance;
+    private static $log_writers = array();
 
-    private static $bolIsOmp = null;
-    private static $strLogPath = null;
-    private static $strDataPath = null;
-
-    private static $lastLogs = array();
-    private static $lastLogSize = 0;
-    private static $logWriters = array();
-
-    const DEFAULT_FORMAT = '%L: %t [%f:%N] errno[%E] logId[%l] uri[%U] user[%u] refer[%{referer}i] cookie[%{cookie}i] %S %M';
+    const DEFAULT_FORMAT = '%L: %t fileLine[%f:%N] errno[%E] logId[%l] uri[%U] clintIp[%u] refer[%{referer}i] cookie[%{cookie}i] %S %M';
     const DEFAULT_FORMAT_STD = '%L: %{%m-%d %H:%M:%S}t %{app}x * %{pid}x [logid=%l filename=%f lineno=%N errno=%{err_no}x %{encoded_str_array}x errmsg=%{u_err_msg}x]';
 
-    private function __construct($arrLogConfig)
+    private function __construct($log_config)
     {
-        $this->intLevel = $arrLogConfig['level'];
-        $this->bolAutoRotate = $arrLogConfig['auto_rotate'];
-        $this->strLogFile = $arrLogConfig['log_file'];
-        $this->strFormat = $arrLogConfig['format'];
-        $this->strFormatWF = $arrLogConfig['format_wf'];
+        date_default_timezone_set("Asia/ShangHai");
+        $this->level = $log_config['level'];
+        $this->auto_rotate = $log_config['auto_rotate'];
+        $this->log_file = $log_config['log_file'];
+        $this->str_format = $log_config['format'];
+        $this->str_format_wf = $log_config['format_wf'];
     }
 
     public static function getLogPrefix()
     {
-        if (defined('IS_ODP') && IS_ODP == true)
-        {
-            return Fis_Appenv::getCurrApp();
-        }
-        else
-        {
-            if (defined('MODULE'))
-            {
-                return MODULE;
-            }
-            else
-            {
-                return 'unknow';
-            }
-        }
+        return MAIN_APP;
     }
 
     /**
-     * @brief 日志打印的根目录
-     *
-     * @return  public static function
-     * @retval
-     * @see
-     * @note
-     * @author luhaixia
-     * @date 2012/07/31 17:15:59
-     **/
+     * 打印日志的目录，在Init中配置
+     * @return string
+     */
     public static function getLogPath()
     {
-        if (defined('IS_ODP') && IS_ODP == true)
-        {
-            return LOG_PATH;
-        }
-        else
-        {
-            if (self::$strLogPath == null)
-            {
-                self::$strLogPath = './';
-            }
-            return self::$strLogPath;
-        }
-
+        return LOG_PATH;
     }
 
     /**
-     * @brief 日志库依赖的数据文件根目录
-     *
-     * @return  public static function
-     * @retval
-     * @see
-     * @note
-     * @author luhaixia
-     * @date 2012/07/31 17:16:30
+     * @brief 数据文件目录
      **/
     public static function getDataPath()
     {
-        if (defined('IS_ODP') && IS_ODP == true)
-        {
-            return DATA_PATH;
-        }
-        else
-        {
-            if (self::$strDataPath == null)
-            {
-                self::$strDataPath = "./";
-            }
-            return self::$strDataPath;
-        }
-
+        return DATA_PATH;
     }
-
-    public static function isOMP()
-    {
-        if (self::$bolIsOmp == null)
-        {
-            self::$bolIsOmp = 0;
-        }
-        return self::$bolIsOmp;
-    }
-
-    // 获取指定App的log对象，默认为当前App
     /**
-     *
      * @return Fis_Log
      * */
-    public static function getInstance($app = null, $logType = null)
+    public static function getInstance($app = null)
     {
         if (empty($app))
         {
             $app = self::getLogPrefix();
         }
-
-        if (empty(self::$arrInstance[$app]))
+        if (empty(self::$arr_instance[$app]))
         {
-
-
             // 生成路径
-            $logPath = self::getLogPath();
-            $log_file = $logPath . "/$app.log";
-
-            if ($logType == "stf")
-            {
-                $logDir = dirname($log_file) . "/" . $logType . "/";
-                if (!file_exists($logDir))
-                {
-                    @mkdir($logDir);
-                }
-                $log_file = $logDir . $app . "_" . $logType . ".log";
-            }
-
+            $log_path = self::getLogPath();
+            $log_file = $log_path . "/$app.log";
             $format = self::DEFAULT_FORMAT;
-
             $format_wf = $format;
 
             $log_conf = array(
@@ -230,73 +93,56 @@ class Fis_Log
                 'format_wf' => $format_wf,
             );
 
-            self::$arrInstance[$app] = new Fis_Log($log_conf);
+            $log_app_conf = Fis_Conf::getAppConf('log');
+            if(!empty($log_level))
+            {
+                array_merge($log_conf , $log_app_conf);
+            }
+            self::$arr_instance[$app] = new Fis_Log($log_conf);
         }
-
-        return self::$arrInstance[$app];
+        return self::$arr_instance[$app];
     }
 
-    public static function debug($str, $errno = 0, $arrArgs = null, $depth = 0)
+    /**
+     * @param $str
+     * @param int $errno
+     * @param null $arr_args
+     * @param int $depth
+     * @return int
+     */
+    public static function debug($str, $errno = 0, $arr_args = null, $depth = 0,$filename_suffix = '')
     {
-
-        if (self::isOMP() == 0 || self::isOMP() == 1)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_DEBUG, $str, $errno, $arrArgs, $depth + 1, '.new', self::DEFAULT_FORMAT_STD);
-        }
-        if (self::isOMP() == 0 || self::isOMP() == 2)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_DEBUG, $str, $errno, $arrArgs, $depth + 1);
-        }
+//        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_DEBUG, $str, $errno, $arr_args, $depth + 1, '.new'.$filename_suffix, self::DEFAULT_FORMAT_STD);
+        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_DEBUG, $str, $errno, $arr_args, $depth + 1,$filename_suffix);
         return $ret;
     }
 
-    public static function trace($str, $errno = 0, $arrArgs = null, $depth = 0)
+    public static function trace($str, $errno = 0, $arr_args = null, $depth = 0,$filename_suffix = '')
     {
-        if (self::isOMP() == 0 || self::isOMP() == 1)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_TRACE, $str, $errno, $arrArgs, $depth + 1, '.new', self::DEFAULT_FORMAT_STD);
-        }
-        if (self::isOMP() == 0 || self::isOMP() == 2)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_TRACE, $str, $errno, $arrArgs, $depth + 1);
-        }
+//        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_TRACE, $str, $errno, $arr_args, $depth + 1, '.new'.$filename_suffix, self::DEFAULT_FORMAT_STD);
+        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_TRACE, $str, $errno, $arr_args, $depth + 1,$filename_suffix);
         return $ret;
     }
 
-    public static function notice($str, $errno = 0, $arrArgs = null, $depth = 0)
+    public static function notice($str, $errno = 0, $arr_args = null, $depth = 0,$filename_suffix = '')
     {
-        if (self::isOMP() == 0 || self::isOMP() == 1)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_NOTICE, $str, $errno, $arrArgs, $depth + 1, '.new', self::DEFAULT_FORMAT_STD);
-        }
-        if (self::isOMP() == 0 || self::isOMP() == 2)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_NOTICE, $str, $errno, $arrArgs, $depth + 1);
-        }
+//        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_NOTICE, $str, $errno, $arr_args, $depth + 1, '.new'.$filename_suffix, self::DEFAULT_FORMAT_STD);
+        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_NOTICE, $str, $errno, $arr_args, $depth + 1,$filename_suffix);
+        return $ret;
     }
 
-    public static function warning($str, $errno = 0, $arrArgs = null, $depth = 0)
+    public static function warning($str, $errno = 0, $arr_args = null, $depth = 0,$filename_suffix = '')
     {
-        if (self::isOMP() == 0 || self::isOMP() == 1)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_WARNING, $str, $errno, $arrArgs, $depth + 1, '.new', self::DEFAULT_FORMAT_STD);
-        }
-        if (self::isOMP() == 0 || self::isOMP() == 2)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_WARNING, $str, $errno, $arrArgs, $depth + 1);
-        }
+//        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_WARNING, $str, $errno, $arr_args, $depth + 1, '.new'.$filename_suffix, self::DEFAULT_FORMAT_STD);
+        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_WARNING, $str, $errno, $arr_args, $depth + 1,$filename_suffix);
+        return $ret;
     }
 
-    public static function fatal($str, $errno = 0, $arrArgs = null, $depth = 0)
+    public static function fatal($str, $errno = 0, $arr_args = null, $depth = 0,$filename_suffix = '')
     {
-        if (self::isOMP() == 0 || self::isOMP() == 1)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_FATAL, $str, $errno, $arrArgs, $depth + 1, '.new', self::DEFAULT_FORMAT_STD);
-        }
-        if (self::isOMP() == 0 || self::isOMP() == 2)
-        {
-            $ret = self::getInstance()->writeLog(self::LOG_LEVEL_FATAL, $str, $errno, $arrArgs, $depth + 1);
-        }
+//        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_FATAL, $str, $errno, $arr_args, $depth + 1, '.new'.$filename_suffix, self::DEFAULT_FORMAT_STD);
+        $ret = self::getInstance()->writeLog(self::LOG_LEVEL_FATAL, $str, $errno, $arr_args, $depth + 1,$filename_suffix);
+        return $ret;
     }
 
     public static function addNotice($key, $value)
@@ -322,7 +168,7 @@ class Fis_Log
                 ',)' => '}',
                 ',  ' => ',',
             )) : $value;
-        $log->addNotice[$key] = $info;
+        $log->add_notice[$key] = $info;
     }
 
     // 生成logid
@@ -355,48 +201,46 @@ class Fis_Log
         return Fis_Ip::getClientIp();
     }
 
-    private function writeLog($intLevel, $str, $errno = 0, $arrArgs = null, $depth = 0, $filename_suffix = '', $log_format = null)
+    private function writeLog($level, $str, $errno = 0, $arr_args = null, $depth = 0, $filename_suffix = '', $log_format = null)
     {
-        if ($intLevel > $this->intLevel || !isset(self::$arrLogLevels[$intLevel]))
+        if ($level > $this->level || !isset(self::$arrLogLevels[$level]))
         {
             return;
         }
 
         //log file name
-        $strLogFile = $this->strLogFile;
-        if (($intLevel & self::LOG_LEVEL_WARNING) || ($intLevel & self::LOG_LEVEL_FATAL))
+        $strLogFile = $this->log_file;
+        if (($level & self::LOG_LEVEL_WARNING) || ($level & self::LOG_LEVEL_FATAL))
         {
             $strLogFile .= '.wf';
         }
-
         $strLogFile .= $filename_suffix;
-
         //assign data required
-        $this->current_log_level = self::$arrLogLevels[$intLevel];
+        $this->current_log_level = self::$arrLogLevels[$level];
 
         //build array for use as strargs
         $_arr_args = false;
         $_add_notice = false;
-        if (is_array($arrArgs) && count($arrArgs) > 0)
+        if (is_array($arr_args) && count($arr_args) > 0)
         {
             $_arr_args = true;
         }
-        if (!empty($this->addNotice))
+        if (!empty($this->add_notice))
         {
             $_add_notice = true;
         }
 
         if ($_arr_args && $_add_notice)
         { //both are defined, merge
-            $this->current_args = $arrArgs + $this->addNotice;
+            $this->current_args = $arr_args + $this->add_notice;
         }
         else if (!$_arr_args && $_add_notice)
         { //only add notice
-            $this->current_args = $this->addNotice;
+            $this->current_args = $this->add_notice;
         }
         else if ($_arr_args && !$_add_notice)
         { //only arr args
-            $this->current_args = $arrArgs;
+            $this->current_args = $arr_args;
         }
         else
         { //empty
@@ -421,26 +265,17 @@ class Fis_Log
         self::$current_instance = $this;
 
         //get the format
-        if ($log_format == null) $format = $this->getFormat($intLevel);
+        if ($log_format == null) $format = $this->getFormat($level);
         else
             $format = $log_format;
         $str = $this->getLogString($format);
 
-        if ($this->bolAutoRotate)
+        if ($this->auto_rotate)
         {
             $strLogFile .= '.' . date('YmdH');
         }
 
-        if (self::$lastLogSize > 0)
-        {
-            self::$lastLogs[] = $str;
-            if (count(self::$lastLogs) > self::$lastLogSize)
-            {
-                array_shift(self::$lastLogs);
-            }
-        }
-
-        foreach (self::$logWriters as $writer)
+        foreach (self::$log_writers as $writer)
         {
             $writer->write($str);
         }
@@ -453,11 +288,11 @@ class Fis_Log
     {
         if ($level == self::LOG_LEVEL_FATAL || $level == self::LOG_LEVEL_WARNING)
         {
-            $fmtstr = $this->strFormatWF;
+            $fmtstr = $this->str_format_wf;
         }
         else
         {
-            $fmtstr = $this->strFormat;
+            $fmtstr = $this->str_format;
         }
         return $fmtstr;
     }
@@ -509,7 +344,7 @@ class Fis_Log
                     $action[] = "(defined('CLIENT_IP')? CLIENT_IP : Fis_Log::getClientIp())";
                     break;
                 case 't':
-                    $action[] = ($param == '') ? "strftime('%y-%m-%d %H:%M:%S')" : "strftime(" . var_export($param, true) . ")";
+                    $action[] = ($param == '') ? "strftime('%Y-%m-%d %H:%M:%S')" : "strftime(" . var_export($param, true) . ")";
                     break;
                 case 'i':
                     $key = 'HTTP_' . str_replace('-', '_', strtoupper($param));
@@ -593,10 +428,8 @@ class Fis_Log
                 case 'u':
                     if (!isset($prelim_done['user']))
                     {
-                        $prelim[] = '$____user____ = Fis_Passport::getUserInfoFromCookie();';
-                        $prelim_done['user'] = true;
                     }
-                    $action[] = "((defined('CLIENT_IP') ? CLIENT_IP: Fis_Log::getClientIp()) . ' ' . \$____user____['uid'] . ' ' . \$____user____['uname'])";
+                    $action[] = "((defined('CLIENT_IP') ? CLIENT_IP: Fis_Log::getClientIp()) )";
                     break;
                 case 'S':
                     if ($param == '')
@@ -712,42 +545,13 @@ class Fis_Log
         return $strArgs;
     }
 
-    //ORP log Specification
-    public function get_str_args_std()
-    {
-        $args = array();
-        foreach ($this->current_args as $k => $v)
-        {
-            $args[] = rawurlencode($k) . '=' . rawurlencode($v);
-        }
-        return implode(' ', $args);
-    }
-
-    /**
-     * 设置允许记录最新的N条日志信息
-     * @param int $size
-     */
-    public static function setLastLogSize($size)
-    {
-        self::$lastLogSize = $size;
-    }
-
-    /**
-     * 获取最近的日志
-     * @return array
-     */
-    public static function getLastLogs()
-    {
-        return self::$lastLogs;
-    }
-
     /**
      * 注册一个新的logWriter
      * @param Fis_Log_Writer $writer
      */
     private static function registerWriter(Fis_Log_Writer $writer)
     {
-        self::$logWriters[] = $writer;
+        self::$log_writers[] = $writer;
     }
 
     /**

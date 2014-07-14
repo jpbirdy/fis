@@ -1,10 +1,4 @@
 <?php
-
-/***************************************************************************
- *
- * Copyright (c) 2011 Baidu.com, Inc. All Rights Reserved
- *
- **************************************************************************/
 class Fis_Yafplugin extends Yaf_Plugin_Abstract
 {
 
