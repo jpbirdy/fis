@@ -8,6 +8,11 @@
  **/
 class Fis_Conf extends Fis_Conf_Base
 {
+    public static function getConf($item = null, $app = null)
+    {
+        return self::get($item);
+    }
+
     public static function getAppConf($item = null, $app = null)
     {
         return self::get($item);

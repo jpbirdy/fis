@@ -12,7 +12,7 @@
  */
 class Fis_Crypt_Rc4
 {
-    const KEY = 'BaiduRc4Key';
+    const KEY = 'DefaultRc4Key';
 
     static function rc4($string, $operation = 'ENCODE', $key = '', $expiry = 0)
     {
