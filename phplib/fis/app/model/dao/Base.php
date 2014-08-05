@@ -15,7 +15,7 @@ abstract class Fis_App_Model_Dao_Base
      * @return mixed
      * @throws Fis_App_Exception_AppException
      */
-    public function callCurlService($url, $param, $method)
+    public function callCurlService($url, $param)
     {
 
         if (!function_exists('curl_init'))
@@ -35,7 +35,6 @@ abstract class Fis_App_Model_Dao_Base
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        $param = array_merge($param, array('method' => $method));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $param);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Fis_App');

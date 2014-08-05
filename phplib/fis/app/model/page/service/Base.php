@@ -13,7 +13,7 @@ abstract class Fis_App_Model_Page_Service_Base
      */
     function __construct($param = null)
     {
-        $this->setInput($param);
+        $this->_setInput($param);
     }
 
     /**
@@ -30,9 +30,9 @@ abstract class Fis_App_Model_Page_Service_Base
                 $psInput = $this->_param;
             }
             //将数据对象化，如果不支持则不进行对象化
-            $this->_call_begin($psInput);
+            $this->_callBegin($psInput);
             $psOutput = $this->_call($psInput);
-            $this->_call_end($psOutput, $psInput);
+            $this->_callEnd($psOutput, $psInput);
             return $psOutput;
         }
         catch (Exception $e)
@@ -48,17 +48,14 @@ abstract class Fis_App_Model_Page_Service_Base
      * @param string $msg
      * @return array 此处必须返回array，否则SAF调用会失败。
      */
-    public static function _renderPSResult($psOutput, $errno = 0, $msg = '')
+    public static function _renderPSResult($psOutput, $errno = 0, $msg = '' )
     {
         self::_checkNull($psOutput);
         $ret = array(
             'errno' => $errno,
-            'errmsg' => $msg,
             'msg' => $msg,
             'data' => new stdClass(),
             'timestamp' => time(),
-            'serverstatus' => 0,
-            'cached' => 0
         );
         if ($errno == 0 && $psOutput != null)
         {
@@ -109,7 +106,7 @@ abstract class Fis_App_Model_Page_Service_Base
      * @desc 在调用_call前执行的方法，可以对psInput进行修改
      * @param $psInput
      */
-    protected function _call_begin(&$psInput)
+    protected function _callBegin(&$psInput)
     {
 
     }
@@ -118,154 +115,18 @@ abstract class Fis_App_Model_Page_Service_Base
      * @desc 在调用完_call后执行的方法，可以对psOutput进行修改
      * @param $psOutput
      */
-    protected function _call_end(&$psOutput, &$psInput)
+    protected function _callEnd(&$psOutput, &$psInput)
     {
         $psOutput = $this->_renderPSResult($psOutput['data'], $psOutput['errno'], $psOutput['errmsg']);
-        self::_addLogNotice($psInput);
 //        Bd_Log::addNotice('jp' , 'loveyi');
     }
 
     /**
      * @param $param
      */
-    protected function setInput($param)
+    protected function _setInput($param)
     {
         $this->_param = $param;
-    }
-
-    /**
-     * 获取passinfo
-     * @return 失败false
-     */
-    protected function _getUserInfo()
-    {
-        return Saf_SmartMain::getUserInfo();
-    }
-
-    /**
-     * 从COOKIE中获取passuid
-     * @return mixed
-     */
-    protected function _getPassUid()
-    {
-        $userInfo = Saf_SmartMain::getUserInfo();
-        $pass_uid = $userInfo['uid'];
-        if ($pass_uid > 0)
-        {
-            self::_checkUserStatus($_COOKIE['BDUSS']);
-        }
-        return $pass_uid;
-    }
-
-    /**
-     * 根据BDUSS获取passuid
-     * @param $bduss
-     * @return mixed
-     */
-    protected function _getPassUidByBDUSS($bduss)
-    {
-        return 0;
-        /*
-        if ($_COOKIE['BDUSS'] == $bduss)
-        {
-            return 0;
-        }
-        $userInfo = Bd_Passport::getData($bduss);
-        $pass_uid = $userInfo['uid'];
-        if ($pass_uid > 0)
-        {
-            self::_checkUserStatus($bduss);
-        }
-        return $pass_uid;
-        */
-    }
-
-
-    protected function _checkUserStatus($bduss)
-    {
-        $userinfo = Service_Data_Fis_App_User_Center_Userinfo::getInstance();
-        $userinfo->setParams($bduss);
-        if (!$userinfo->CheckStatus())
-        {
-            throw new Fis_App_App_Exception(
-                Fis_App_App_Exception::USER_FORBID_MSG,
-                Fis_App_App_Exception::USER_FORBID);
-        }
-        if ($userinfo->CheckisSync())
-        {
-            throw new Fis_App_App_Exception(
-                Fis_App_App_Exception::USER_SYNC_MSG,
-                Fis_App_App_Exception::USER_SYNC);
-        }
-    }
-
-    /**
-     * 添加notice信息
-     * @param $psInput
-     */
-    protected function _addLogNotice(&$psInput)
-    {
-        //字段名修改为ODP默认字段，不需要映射
-        $arrLog['product'] = 'baidunuomi';
-        $arrLog['subsys'] = 'Fis_App';
-        //LOGID用timestamp定位
-        $arrLog['log_id'] = isset($psInput['log_id']) ?
-                                    $psInput['log_id'] :
-                                    (isset($psInput['timestamp']) ? $psInput['timestamp'] : LOG_ID);
-        //passuid替代login_id
-        $arrLog['login_id'] = isset($psInput['pass_uid']) ? $psInput['pass_uid'] : '';
-        //打印s值
-        $arrLog['s'] = isset($psInput['s']) ? $psInput['s'] : '';
-        //app版本号
-        $arrLog['app_version'] = isset($psInput['v']) ? $psInput['v'] : '';
-        //终端类型
-        $arrLog['terminal_type'] = isset($psInput['terminal_type']) ? $psInput['terminal_type'] : '';
-//        $arrLog['device_type'] = isset($psInput['device_type']) ? $psInput['device_type'] : '';
-        //设备类型
-        $arrLog['device_type'] = isset($psInput['device']) ? $psInput['device'] : '';
-        //cuid
-        $arrLog['cuid'] = isset($psInput['cuid']) ? $psInput['cuid'] : '';
-        //系统版本
-        $arrLog['os_version'] = isset($psInput['os']) ? $psInput['os'] : '';
-        //lbsidfa
-        $arrLog['IDFA'] = isset($psInput['lbsidfa']) ? $psInput['lbsidfa'] : '';
-        //UUID
-        $arrLog['uuid'] = isset($psInput['uuid']) ? $psInput['uuid'] : '';
-        //location
-        if(isset($psInput['location']))
-        {
-            $locations = explode(',' , $psInput['location']);
-            $arrLog['lng'] = $locations[0];
-            $arrLog['lat'] = $locations[1];
-        }
-        else
-        {
-            $arrLog['lat'] = isset($psInput['lat']) ? $psInput['lat'] : '';
-            $arrLog['lng'] = isset($psInput['lng']) ? $psInput['lng'] : '';
-        }
-        //渠道号
-        $arrLog['channel'] = isset($psInput['channel']) ? $psInput['channel'] : '';
-        //客户端类型
-        $arrLog['client_type'] = isset($psInput['client_type']) ? $psInput['client_type'] : '';
-        //城市id
-        if(isset($psInput['cityid']))
-        {
-            $city = $psInput['cityid'];
-        }
-        elseif(isset($psInput['cityId']))
-        {
-            $city = $psInput['cityId'];
-        }
-        elseif(isset($psInput['city_id']))
-        {
-            $city = $psInput['city_id'];
-        }
-        else
-        {
-            $city = '';
-        }
-        $arrLog['target_city'] = $city;
-        Saf_Base_Log  :: addLogNotice($arrLog);
     }
 
 

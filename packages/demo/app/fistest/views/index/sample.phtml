@@ -1,0 +1,16 @@
+<?php
+$baseUrl = $_SERVER['REMOTE_ADDR'] . ':' . $_SERVER['SERVER_PORT'] . '/';
+?>
+<html>
+<head>
+    <title>Hello World</title>
+    <!-- 静态文件、包括图片、文件、js、css，全部放到webroot中 -->
+    <script src="<?php echo $baseUrl ?>js/jquery-1.8.3.js" type="text/javascript"></script>
+    <link type="text/css" href="<?php echo $baseUrl ?>css/style.css" rel="stylesheet" />
+</head>
+
+<body>
+<h1><?php echo $content;?></h1>
+
+</body>
+</html>

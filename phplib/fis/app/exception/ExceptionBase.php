@@ -25,7 +25,7 @@ abstract class Fis_App_Exception_ExceptionBase extends Exception
      * @param int $code
      * @return string
      */
-    public function getDisplayErrMsgByCode($code)
+    public function _getDisplayErrMsgByCode($code)
     {
         return $this->_getSupplyErrMsgCodeEngine()->getDisplayErrMsgByCode($code);
     }
@@ -34,7 +34,7 @@ abstract class Fis_App_Exception_ExceptionBase extends Exception
      * @param int $code
      * @return string
      */
-    public function getInternalErrMsgByCode($code)
+    public function _getInternalErrMsgByCode($code)
     {
         return $this->_getSupplyErrMsgCodeEngine()->getInternalErrMsgByCode($code);
     }
@@ -46,7 +46,7 @@ abstract class Fis_App_Exception_ExceptionBase extends Exception
      * @param int $displayCode 内部的错误码
      * @return string
      */
-    protected function buildMessage($logId, $displayMessage , $displayCode)
+    protected function _buildMessage($logId, $displayMessage , $displayCode)
     {
         return '[logID]' . $logId . '[displayMessage]' . $displayMessage. '[$displayCode]' . $displayCode;
     }

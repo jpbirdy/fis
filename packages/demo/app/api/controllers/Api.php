@@ -7,5 +7,6 @@ class Controller_Api extends Yaf_Controller_Abstract {
 	public $actions = array
     (
 		'sample' => 'actions/Sample.php',
+        'forward' => 'actions/Forward.php',
 	);
 }

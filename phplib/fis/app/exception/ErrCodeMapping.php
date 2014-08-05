@@ -48,7 +48,7 @@ class Fis_App_Exception_ErrCodeMapping
      * @param int $code 传入的是不带前缀的错误
      * @return int
      */
-    final public function getCodeWithPrefix($code)
+    final public function _getCodeWithPrefix($code)
     {
         $prefix = $this->_getPrefix();
         if (!empty($prefix))
@@ -67,7 +67,7 @@ class Fis_App_Exception_ErrCodeMapping
      * @param int $code
      * @return int
      */
-    final public function getDisplayCode($code)
+    final public function _getDisplayCode($code)
     {
         $baseArr = $this->_getCodeMsgMapping();
         if (array_key_exists($code, $baseArr))
@@ -76,7 +76,7 @@ class Fis_App_Exception_ErrCodeMapping
         }
         elseif (array_key_exists($code, $this->_getMappingRelation()))
         {
-            $retCode = $this->getCodeWithPrefix($code);
+            $retCode = $this->_getCodeWithPrefix($code);
         }
         else
         {
@@ -117,7 +117,7 @@ class Fis_App_Exception_ErrCodeMapping
      * @param int $code , string extendMsg
      * @return string
      */
-    public function getDisplayErrMsgByCode($code, $extendMsg)
+    public function _getDisplayErrMsgByCode($code, $extendMsg)
     {
         $retMsg = '';
         $codeMsgMapping = $this->_getMappingRelation();

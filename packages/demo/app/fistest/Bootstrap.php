@@ -22,6 +22,19 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
 //        $config = Yaf_Application::app()->getConfig();
 //        Yaf_Registry::set("config", $config);
     }
+
+
+    public function _initAutoLoader()
+    {
+        $loader = Yaf_Loader::getInstance();
+        $library = Fis_Conf::getAppConf('product/library');
+        if(is_string($library))
+        {
+            $loader->registerLocalNamespace(explode(',',$library));
+        }
+        return true;
+    }
+
     public function _initView(Yaf_Dispatcher $dispatcher)
     {
         //在这里注册自己的view控制器，例如smarty,firekylin

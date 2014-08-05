@@ -23,8 +23,8 @@ class Fis_App_Exception_AppException extends Fis_App_Exception_ExceptionBase
      */
     function __construct($message = '', $code = 0)
     {
-        $code = $this->_getSupplyErrMsgCodeEngine()->getDisplayCode($code);
-        parent::__construct($this->_getSupplyErrMsgCodeEngine()->getDisplayErrMsgByCode($code , $message), $code);
+        $code = $this->_getSupplyErrMsgCodeEngine()->_getDisplayCode($code);
+        parent::__construct($this->_getSupplyErrMsgCodeEngine()->_getDisplayErrMsgByCode($code , $message), $code);
     }
 
 
@@ -35,7 +35,7 @@ class Fis_App_Exception_AppException extends Fis_App_Exception_ExceptionBase
      * @param string $selfMessage   定制的错误信息
      * @return string
      */
-    protected function buildMessage($logId, $displayMessage,$interanlMessage)
+    protected function _buildMessage($logId, $displayMessage,$interanlMessage)
     {
         return '[logID]' . $logId . '[displayMessage]' . $displayMessage. '[interanlMessage]' . $interanlMessage;
     }
