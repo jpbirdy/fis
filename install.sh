@@ -128,7 +128,7 @@ cd ..
 
 echo -n "Installing php.."
 cd php-5.4.11
-./configure --prefix=$FISHOME/php  --with-config-file-path=$FISHOME/php/etc  --with-libxml-dir=$FISHOME/tools/libxml2  --with-mcrypt=$FISHOME/tools/liblibmcrypt  --with-iconv=$FISHOME/tools/libiconv  --with-curl=$FISHOME/tools/curl  --enable-soap  --enable-fpm  --enable-mbstring=all  --enable-sockets 1>suc.txt 2>err.txt
+./configure --prefix=$FISHOME/php  --with-config-file-path=$FISHOME/php/etc  --with-libxml-dir=$FISHOME/tools/libxml2  --with-mcrypt=$FISHOME/tools/liblibmcrypt  --with-iconv=$FISHOME/tools/libiconv  --with-curl=$FISHOME/tools/curl --with-mysql --with-mysqli --enable-soap  --enable-fpm  --enable-mbstring=all  --enable-sockets 1>suc.txt 2>err.txt
 # --with-mysql=$1/mysql/ 
 # --with-mysqli=$1/mysql/bin/mysql_config 
 make  1>suc.txt 2>err.txt
@@ -222,6 +222,7 @@ done
 sed -i 's/\/home\/jpbirdy\/fisdev/'$rep'/g' $FISHOME/loadfis.sh
 sed -i 's/\/home\/jpbirdy\/fisdev/'$rep'/g' $FISHOME/php/etc/php.ini
 sed -i 's/\/home\/jpbirdy\/fisdev/'$rep'/g' $FISHOME/nginx/conf/vhost/php.conf
+mkdir -p $FISHOME/data
 echo "Please modify some confs...Enjoy it!"
 echo "Type localhost:8080/api/api/sample you could see a demo"
 

@@ -16,6 +16,11 @@ server {
         deny all;
     }
 
+    location ~* \.(gif|jpg|jpeg|png|css|js|flv|ico|swf) {
+        root       /home/jpbirdy/fisdev/webroot;
+        expires    30d;
+    }
+
     #location ~\.php$ {
     #    root            /home/users/jiangpeng04/odp/webroot;
     #    fastcgi_pass    unix:/home/users/jiangpeng04/odp/php/var/php-cgi.sock;

@@ -77,15 +77,12 @@ class Fis_Init
     // 在PHP.INI中添加yaf.library
     private static function initAutoLoader()
     {
-        $local_lib = Fis_Appenv::getEnv('code') . '/library';
-        Yaf_Loader::getInstance($local_lib, LIB_PATH);
-        return true;
     }
 
     // 初始化Ap
     private static function initYaf()
     {
-        self::$app = new Yaf_Application(APP_PATH . "/conf/application.ini");
+        self::$app = new Yaf_Application(APP_PATH . '/conf/application.ini');
         return true;
     }
 

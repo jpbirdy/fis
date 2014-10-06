@@ -58,7 +58,12 @@ class Fis_Log
      */
     public static function getLogPath()
     {
-        return LOG_PATH;
+        $path = LOG_PATH . '/' . MAIN_APP;
+        if(!file_exists($path))
+        {
+            mkdir($path);
+        }
+        return $path;
     }
 
     /**

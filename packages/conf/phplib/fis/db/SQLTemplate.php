@@ -1,4 +1,10 @@
 <?php
+/*
+* class Fis_Db_SQLTemplate
+*
+* Author: zhangdongjin@baidu.com
+*
+* */
 
 class Fis_Db_SQLTemplate implements Fis_Db_ISQL
 {
@@ -52,7 +58,7 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
         $this->sql = NULL;
 
         // parse template string into arrParsed and arrVar
-        if (!$this->__parse())
+        if(!$this->__parse())
         {
             $this->template = NULL;
             return false;
@@ -77,7 +83,7 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
     public function bindParam($param, $value = NULL, $getNow = false)
     {
         // not prapared
-        if ($this->template === NULL)
+        if($this->template === NULL)
         {
             return false;
         }
@@ -85,23 +91,23 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
         $this->sql = NULL;
 
         // array
-        if (is_array($param))
+        if(is_array($param))
         {
-            foreach ($param as $k => $v)
+            foreach($param as $k => $v)
             {
-                if ($this->bindOneParam($k, $v) === false)
+                if($this->bindOneParam($k, $v) === false)
                 {
                     return false;
-                }
+                }   
             }
         }
         // one param
-        else if (!$this->bindOneParam($param, $value))
+        else if(!$this->bindOneParam($param, $value))
         {
             return false;
         }
 
-        if ($getNow)
+        if($getNow)
         {
             return $this->__createSQL();
         }
@@ -110,26 +116,26 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
 
     private function bindOneParam($k, $v)
     {
-        $k = Fis_Db_SQLTemplate::V_BEGIN . $k;
-        if (!array_key_exists($k, $this->arrVar))
+        $k = Fis_Db_SQLTemplate::V_BEGIN.$k;
+        if(!array_key_exists($k, $this->arrVar))
         {
             return null;
         }
 
-        if ($this->arrVar[$k] == Fis_Db_SQLTemplate::T_NUM)
+        if($this->arrVar[$k] == Fis_Db_SQLTemplate::T_NUM)
         {
-            if (!is_numeric($v))
+            if(!is_numeric($v))
             {
                 return false;
             }
         }
-        else if ($this->arrVar[$k] != Fis_Db_SQLTemplate::T_RAW)
+        else if($this->arrVar[$k] != Fis_Db_SQLTemplate::T_RAW)
         {
-            if ($this->db instanceof Fis_Db)
+            if($this->db instanceof Fis_Db)
             {
                 $v = $this->db->escapeString($v);
             }
-            else if ($this->db instanceof mysqli)
+            else if($this->db instanceof mysqli)
             {
                 $v = $this->db->real_escape_string($v);
             }
@@ -142,13 +148,13 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
     public function getSQL()
     {
         // not prepared
-        if ($this->template === NULL)
+        if($this->template === NULL)
         {
             return NULL;
         }
 
         // sql already created
-        if ($this->sql !== NULL)
+        if($this->sql !== NULL)
         {
             return $this->sql;
         }
@@ -162,18 +168,18 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
         $off = 0;
         $total = strlen($this->template);
 
-        while ($off != $total)
+        while($off != $total)
         {
             // search for variable
             $nextOff = strpos($this->template, Fis_Db_SQLTemplate::V_BEGIN, $off);
             // not found
-            if ($nextOff === false)
+            if($nextOff === false)
             {
                 $this->arrParsed[] = substr($this->template, $off);
                 break;
             }
             // 取出开头的串
-            if ($off != $nextOff)
+            if($off != $nextOff)
             {
                 $this->arrParsed[] = substr($this->template, $off, $nextOff - $off);
                 $off = $nextOff;
@@ -181,7 +187,8 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
             // search for the split char
             $nextOff = strpos($this->template, Fis_Db_SQLTemplate::V_SPLIT, $off);
             // bad format
-            if ($nextOff === false || ($varLen = $nextOff - $off) == 1 || $this->template{$nextOff + 2} != Fis_Db_SQLTemplate::V_END)
+            if($nextOff === false || ($varLen = $nextOff - $off) == 1 ||
+                $this->template{$nextOff+2} !=  Fis_Db_SQLTemplate::V_END)
             {
                 $this->arrParsed = NULL;
                 $this->arrVar = NULL;
@@ -189,8 +196,8 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
             }
             $var = substr($this->template, $off, $varLen);
             $this->arrParsed[] = $var;
-            $this->arrVar[$var] = $this->template{$nextOff + 1};
-            $off = $nextOff + 3;
+            $this->arrVar[$var] = $this->template{$nextOff+1};
+            $off = $nextOff+3;
         }
         return true;
     }
@@ -198,15 +205,15 @@ class Fis_Db_SQLTemplate implements Fis_Db_ISQL
     private function __createSQL()
     {
         // no enough params
-        if (count($this->arrParams) != count($this->arrVar))
+        if(count($this->arrParams) != count($this->arrVar))
         {
             return NULL;
         }
 
         $sql = '';
-        foreach ($this->arrParsed as $v)
+        foreach($this->arrParsed as $v)
         {
-            if (strncmp($v, Fis_Db_SQLTemplate::V_BEGIN, strlen(Fis_Db_SQLTemplate::V_BEGIN)) == 0)
+            if(strncmp($v, Fis_Db_SQLTemplate::V_BEGIN, strlen(Fis_Db_SQLTemplate::V_BEGIN)) == 0)
             {
                 $sql .= $this->arrParams[$v];
             }

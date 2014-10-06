@@ -1,12 +1,20 @@
 <?php
-
+/***************************************************************************
+ * 
+ * Copyright (c) 2011 Baidu.com, Inc. All Rights Reserved
+ * 
+ **************************************************************************/
+ 
+ 
+ 
 /**
  * @file Autoloader.php
- * @author jpbirdy
- * @date
- * @brief
- *
+ * @author chenchao01(com@baidu.com)
+ * @date 2011/07/26 10:52:40
+ * @brief 
+ *  
  **/
+
 class Fis_Autoloader
 {
     private static $arrMap = null;
@@ -18,7 +26,7 @@ class Fis_Autoloader
      * */
     public static function addClassMap($arrMap)
     {
-        if (!self::$arrMap)
+        if(!self::$arrMap)
         {
             self::$arrMap = $arrMap;
             spl_autoload_register(array('Fis_Autoloader', 'autoload'));
@@ -37,17 +45,20 @@ class Fis_Autoloader
 
     public static function autoload($name)
     {
-        if (isset(self::$arrMap[$name]))
+        if(isset(self::$arrMap[$name]))
         {
             $file = self::$arrMap[$name];
-            if ($file{0} == '/')
+            if($file{0} == '/')
             {
                 require_once $file;
             }
             else
             {
-                require_once ROOT_PATH . "/$file";
+                require_once ROOT_PATH."/$file";
             }
         }
     }
 }
+
+
+?>

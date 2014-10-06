@@ -1,4 +1,19 @@
 <?php
+/***************************************************************************
+ *   
+ *   Copyright (c) 2011 Baidu.com, Inc. All Rights Reserved
+ *   
+ ***************************************************************************/
+ 
+ 
+ 
+/**
+ * @file $FILE NAME$
+ * @author $DoxygenToolkit_authorName$
+ * @date 2011/01/20 14:19:45
+ * @brief  $Revision$
+ *  
+ */
 
 class Fis_Db_StatusManFile implements Fis_Db_IStatusMan
 {
@@ -7,7 +22,7 @@ class Fis_Db_StatusManFile implements Fis_Db_IStatusMan
     public function __construct($path)
     {
         $this->path = $path;
-        if (!file_exists($path))
+        if(!file_exists($path))
         {
             @mkdir($path, 0777, true);
         }
@@ -16,12 +31,12 @@ class Fis_Db_StatusManFile implements Fis_Db_IStatusMan
     public function load($host, $port)
     {
         $file = $this->getFile($host, $port);
-        if (!file_exists($file))
+        if(!file_exists($file))
         {
             return NULL;
         }
         $ret = unserialize(file_get_contents($file));
-        return ($ret !== FALSE) ? $ret : NULL;
+        return ($ret !== FALSE)?$ret:NULL;
     }
 
     public function save($host, $port, $status)
@@ -38,11 +53,11 @@ class Fis_Db_StatusManFile implements Fis_Db_IStatusMan
     public function cleanAll()
     {
         $dir = @opendir($this->path);
-        if (!$dir)
+        if(!$dir)
         {
             return true;
         }
-        while (($file = readdir($dir)) !== false)
+        while(($file = readdir($dir)) !== false)
         {
             @unlink("{$this->path}/$file");
         }
@@ -52,7 +67,7 @@ class Fis_Db_StatusManFile implements Fis_Db_IStatusMan
 
     private function getFile($host, $port)
     {
-        return $this->path . "/$host:$port";
+        return $this->path."/$host:$port";
     }
 }
 /* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */
